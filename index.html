@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vietlott Pro Structure</title>
+<title>Vietlott Fix Run</title>
 
 <style>
 *{box-sizing:border-box}
@@ -79,32 +79,33 @@ margin:10px 0;
 color:#c62828;
 }
 
-.small{
-font-size:13px;
-color:#555;
+.score{
+font-size:18px;
+font-weight:bold;
+color:#2e7d32;
+margin-top:10px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">🎰 VIETLOTT + TỬ VI STRUCTURE</div>
+<div class="header">🎰 VIETLOTT FIX RUN + 🔮 TỬ VI</div>
 
 <!-- ================= TỬ VI ================= -->
 <div class="card">
 
-<div class="section">🔮 Tử vi (module riêng)</div>
+<div class="section">🔮 Tử vi</div>
 
 <input id="name" placeholder="Họ tên">
-
 <select id="gender">
 <option>Nam</option>
 <option>Nữ</option>
 </select>
 
-<input id="day" type="number" placeholder="Ngày sinh">
-<input id="month" type="number" placeholder="Tháng sinh">
-<input id="year" type="number" placeholder="Năm sinh">
+<input id="day" type="number" placeholder="Ngày">
+<input id="month" type="number" placeholder="Tháng">
+<input id="year" type="number" placeholder="Năm">
 
 <select id="hour">
 <option value="ty">Tý</option>
@@ -121,9 +122,9 @@ color:#555;
 <option value="hoi">Hợi</option>
 </select>
 
-<button onclick="calc()">Tính tử vi</button>
+<button onclick="calcTuVi()">TÍNH TỬ VI</button>
 
-<div id="tuviBox" class="small"></div>
+<div id="tuviBox"></div>
 
 </div>
 
@@ -135,7 +136,7 @@ color:#555;
 <select id="game">
 <option value="645">Mega 6/45</option>
 <option value="655">Power 6/55</option>
-<option value="3d">3D Max Pro</option>
+<option value="3d">3D Max</option>
 </select>
 
 <select id="mode">
@@ -160,17 +161,16 @@ color:#555;
 <script>
 
 let lucky=[];
-let energy=60;
 
 /* ================= TỬ VI ================= */
-function calc(){
+function calcTuVi(){
 
-let d=+day.value;
-let m=+month.value;
-let y=+year.value;
+let d=Number(document.getElementById("day").value);
+let m=Number(document.getElementById("month").value);
+let y=Number(document.getElementById("year").value);
 
 if(!d||!m||!y){
-alert("Nhập đủ ngày tháng năm");
+alert("Nhập đủ ngày tháng năm!");
 return;
 }
 
@@ -182,7 +182,8 @@ let c=(d+m+age)%10;
 
 lucky=[a,b,c];
 
-tuviBox.innerHTML="⭐ Số may mắn: "+lucky.join(" - ");
+document.getElementById("tuviBox").innerHTML=
+"⭐ Số may mắn: <b>"+lucky.join(" - ")+"</b>";
 }
 
 /* ================= RANDOM ================= */
@@ -193,7 +194,7 @@ return Math.floor(Math.random()*max)+1;
 /* ================= PICK ================= */
 function pick(max,force){
 
-if(lucky.length && Math.random()<force){
+if(lucky.length>0 && Math.random()<force){
 let p=lucky[Math.floor(Math.random()*lucky.length)];
 return Math.min(max,Math.max(1,p+rand(3)));
 }
@@ -201,14 +202,12 @@ return Math.min(max,Math.max(1,p+rand(3)));
 return rand(max);
 }
 
-/* ================= GENERATE ================= */
-function gen(game,mode){
+/* ================= FIXED GENERATE ================= */
+function generate(game,mode){
 
 let nums=[];
-
-let max = game==="645"?45 : game==="655"?55 : 1000;
-
-let count = game==="3d"?2:6;
+let max = (game==="645")?45:(game==="655")?55:999;
+let count = (game==="3d")?2:6;
 
 for(let i=0;i<count;i++){
 
@@ -230,7 +229,7 @@ return nums;
 }
 
 /* ================= SCORE ================= */
-function score(nums,max){
+function calcScore(nums){
 
 let hit=0;
 
@@ -238,16 +237,19 @@ nums.forEach(n=>{
 if(lucky.includes(n%10)) hit++;
 });
 
-return Math.min(100,hit*20+Math.floor(Math.random()*20));
+return Math.min(100,hit*20 + Math.floor(Math.random()*20));
 }
 
-/* ================= QUAY ================= */
+/* ================= QUAY (FIXED) ================= */
 function quay(){
 
-let game=game.value;
-let mode=mode.value;
+let game=document.getElementById("game").value;
+let mode=document.getElementById("mode").value;
 
-let nums=gen(game,mode);
+let nums=generate(game,mode);
+
+let result=document.getElementById("result");
+let score=document.getElementById("score");
 
 result.innerHTML="";
 
@@ -258,13 +260,14 @@ d.className="ball";
 
 if(lucky.includes(n%10)) d.classList.add("hot");
 
-d.innerText=n.toString().padStart(game==="3d"?3:2,"0");
+let pad = (game==="3d")?3:2;
+d.innerText=n.toString().padStart(pad,"0");
 
 result.appendChild(d);
 
 });
 
-score.innerHTML="📊 Hợp mệnh: "+score(nums)+" / 100";
+score.innerHTML="📊 Hợp mệnh: <b>"+calcScore(nums)+"/100</b>";
 
 }
 
