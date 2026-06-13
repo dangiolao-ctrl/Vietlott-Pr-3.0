@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Vietlott Pro 3.0</title>
+
+<style>
+
+*{
+box-sizing:border-box;
+}
+
+body{
+margin:0;
+padding:15px;
+font-family:Arial,sans-serif;
+background:#fff7e6;
+text-align:center;
+}
+
+.header{
+background:#c62828;
+color:white;
+padding:15px;
+border-radius:15px;
+font-size:28px;
+font-weight:bold;
+margin-bottom:15px;
+}
+
+.card{
+background:white;
+padding:15px;
+border-radius:15px;
+margin-bottom:15px;
+box-shadow:0 2px 8px rgba(0,0,0,.15);
+}
+
+select{
+width:100%;
+padding:12px;
+font-size:18px;
+border-radius:10px;
+border:2px solid #fbc02d;
+}
+
+.mainButton{
+width:100%;
+padding:15px;
+font-size:22px;
+font-weight:bold;
+border:none;
+border-radius:12px;
+background:#d32f2f;
+color:white;
+margin-top:10px;
+}
+
+.quickBox{
+display:flex;
+gap:10px;
+margin-top:10px;
+}
+
+.quickBtn{
+flex:1;
+padding:12px;
+border:none;
+border-radius:10px;
+background:#fbc02d;
+font-weight:bold;
+font-size:16px;
+}
+
+.ball{
+width:60px;
+height:60px;
+background:#fbc02d;
+border-radius:50%;
+display:inline-flex;
+justify-content:center;
+align-items:center;
+font-size:22px;
+font-weight:bold;
+margin:5px;
+color:#000;
+}
+
+.resultTitle{
+font-size:22px;
+font-weight:bold;
+margin-bottom:10px;
+color:#c62828;
+}
+
+.number3d{
+font-size:40px;
+font-weight:bold;
+color:#c62828;
+margin:10px;
+}
+
+.sectionTitle{
+font-size:20px;
+font-weight:bold;
+margin-bottom:10px;
+}
+
+.historyItem{
+text-align:left;
+padding:8px;
+border-bottom:1px solid #ddd;
+font-size:14px;
+}
+
+.favoriteBox{
+padding:10px;
+background:#fff9c4;
+border-radius:10px;
+margin-top:10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+🎰 Vietlott Pro 3.0
+</div>
+
+<div class="card">
+
+<div class="sectionTitle">
+Chọn trò chơi
+</div>
+
+<select id="gameMode">
+
+<option value="mega">
+Mega 6/45
+</option>
+
+<option value="power">
+Power 6/55
+</option>
+
+<option value="3d">
+3D Max Pro
+</option>
+
+</select>
+
+<button class="mainButton" onclick="quaySo()">
+🎲 Quay số
+</button>
+
+<div class="quickBox">
+
+<button class="quickBtn" onclick="quayNhieu(10)">
+10 lần
+</button>
+
+<button class="quickBtn" onclick="quayNhieu(100)">
+100 lần
+</button>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<div id="result">
+
+Chưa có kết quả
+
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="sectionTitle">
+⭐ Bộ số yêu thích
+</div>
+
+<div id="favoriteArea">
+
+Chưa lưu bộ số nào
+
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="sectionTitle">
+📊 Thống kê
+</div>
+
+<div id="statsArea">
+
+Chưa có dữ liệu
+
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="sectionTitle">
+📜 Lịch sử
+</div>
+
+<div id="historyArea">
+
+Chưa có lịch sử
+
+</div>
+
+</div>
+
+<script>
+let historyData = [];
+let stats = {};
+
+function randomUnique(count,max){
+
+let arr=[];
+
+while(arr.length<count){
+
+let n =
+Math.floor(Math.random()*max)+1;
+
+if(!arr.includes(n)){
+arr.push(n);
+}
+
+}
+
+arr.sort((a,b)=>a-b);
+
+return arr;
+
+}
+
+function saveFavorite(text){
+
+localStorage.setItem(
+"favoriteNumbers",
+text
+);
+
+loadFavorite();
+
+}
+
+function loadFavorite(){
+
+let fav =
+localStorage.getItem(
+"favoriteNumbers"
+);
+
+document.getElementById(
+"favoriteArea"
+).innerHTML =
+fav || "Chưa lưu bộ số nào";
+
+}
+
+function updateHistory(text){
+
+historyData.unshift(text);
+
+if(historyData.length>50){
+historyData.pop();
+}
+
+let html="";
+
+historyData.forEach(item=>{
+
+html +=
+`<div class="historyItem">${item}</div>`;
+
+});
+
+document.getElementById(
+"historyArea"
+).innerHTML = html;
+
+}
+
+function updateStats(numbers){
+
+numbers.forEach(n=>{
+
+if(!stats[n]){
+stats[n]=0;
+}
+
+stats[n]++;
+
+});
+
+let topNumber="-";
+let topCount=0;
+
+for(let n in stats){
+
+if(stats[n]>topCount){
+
+topCount=stats[n];
+topNumber=n;
+
+}
+
+}
+
+document.getElementById(
+"statsArea"
+).innerHTML=
+
+`🔥 Xuất hiện nhiều nhất:
+<b>${topNumber}</b>
+(${topCount} lần)`;
+
+}
+
+function quaySo(){
+
+let mode =
+document.getElementById(
+"gameMode"
+).value;
+
+let html="";
+let historyText="";
+
+if(mode==="mega"){
+
+let numbers =
+randomUnique(6,45);
+
+html +=
+`<div class="resultTitle">
+🎰 Mega 6/45
+</div>`;
+
+numbers.forEach(n=>{
+
+html +=
+`<div class="ball">${n}</div>`;
+
+});
+
+historyText =
+"🎰 Mega 6/45 : "
++ numbers.join("-");
+
+updateStats(numbers);
+
+saveFavorite(numbers.join(" - "));
+
+}
+
+else if(mode==="power"){
+
+let numbers =
+randomUnique(6,55);
+
+html +=
+`<div class="resultTitle">
+⚡ Power 6/55
+</div>`;
+
+numbers.forEach(n=>{
+
+html +=
+`<div class="ball">${n}</div>`;
+
+});
+
+historyText =
+"⚡ Power 6/55 : "
++ numbers.join("-");
+
+updateStats(numbers);
+
+saveFavorite(numbers.join(" - "));
+
+}
+
+else{
+
+let bo1 =
+Math.floor(Math.random()*1000)
+.toString()
+.padStart(3,"0");
+
+let bo2 =
+Math.floor(Math.random()*1000)
+.toString()
+.padStart(3,"0");
+
+html +=
+`<div class="resultTitle">
+🎯 3D Max Pro
+</div>
+
+<div class="number3d">
+Bộ 1: ${bo1}
+</div>
+
+<div class="number3d">
+Bộ 2: ${bo2}
+</div>`;
+
+historyText =
+"🎯 3D Max Pro : "
++ bo1 + " | " + bo2;
+
+saveFavorite(
+"Bộ 1: " +
+bo1 +
+" | Bộ 2: " +
+bo2
+);
+
+}
+
+document.getElementById(
+"result"
+).innerHTML = html;
+
+updateHistory(historyText);
+
+}
+
+function quayNhieu(soLan){
+
+for(let i=0;i<soLan;i++){
+
+quaySo();
+
+}
+
+alert(
+"Đã quay "
++ soLan +
+" lần"
+);
+
+}
+
+loadFavorite();
+
+</script>
+
+</body>
+</html>
