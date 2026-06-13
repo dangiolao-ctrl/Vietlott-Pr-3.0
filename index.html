@@ -4,11 +4,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vietlott Fix Run</title>
+<title>Vietlott Spin Pro</title>
 
 <style>
-*{box-sizing:border-box}
-
 body{
 margin:0;
 padding:15px;
@@ -21,9 +19,9 @@ text-align:center;
 background:#c62828;
 color:#ffeb3b;
 padding:15px;
-border-radius:15px;
 font-size:24px;
 font-weight:bold;
+border-radius:15px;
 margin-bottom:15px;
 }
 
@@ -35,108 +33,62 @@ margin-bottom:15px;
 box-shadow:0 3px 10px rgba(0,0,0,.15);
 }
 
-select,input,button{
+select,button{
 width:100%;
 padding:12px;
-margin-top:8px;
+margin-top:10px;
 border-radius:10px;
-font-size:15px;
-}
-
-select,input{
-border:2px solid #fbc02d;
+font-size:16px;
 }
 
 button{
-border:none;
 background:#d32f2f;
 color:#ffeb3b;
+border:none;
 font-weight:bold;
-cursor:pointer;
 }
 
 .ball{
 width:55px;
 height:55px;
 display:inline-flex;
-justify-content:center;
 align-items:center;
+justify-content:center;
 border-radius:50%;
 margin:5px;
-background:radial-gradient(circle,#fff176,#fbc02d);
-font-weight:bold;
 font-size:20px;
+font-weight:bold;
+background:radial-gradient(circle,#fff176,#fbc02d);
 }
 
 .ball.hot{
 background:radial-gradient(circle,#ffeb3b,#ff9800);
-transform:scale(1.1);
+transform:scale(1.15);
 }
 
-.section{
-font-weight:bold;
-margin:10px 0;
-color:#c62828;
+#result{
+margin-top:10px;
 }
 
 .score{
+margin-top:10px;
 font-size:18px;
 font-weight:bold;
 color:#2e7d32;
-margin-top:10px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">🎰 VIETLOTT FIX RUN + 🔮 TỬ VI</div>
+<div class="header">🎰 VIETLOTT SPIN MACHINE</div>
 
-<!-- ================= TỬ VI ================= -->
 <div class="card">
-
-<div class="section">🔮 Tử vi</div>
-
-<input id="name" placeholder="Họ tên">
-<select id="gender">
-<option>Nam</option>
-<option>Nữ</option>
-</select>
-
-<input id="day" type="number" placeholder="Ngày">
-<input id="month" type="number" placeholder="Tháng">
-<input id="year" type="number" placeholder="Năm">
-
-<select id="hour">
-<option value="ty">Tý</option>
-<option value="suu">Sửu</option>
-<option value="dan">Dần</option>
-<option value="mao">Mão</option>
-<option value="thin">Thìn</option>
-<option value="ty2">Tỵ</option>
-<option value="ngo">Ngọ</option>
-<option value="mui">Mùi</option>
-<option value="than">Thân</option>
-<option value="dau">Dậu</option>
-<option value="tuat">Tuất</option>
-<option value="hoi">Hợi</option>
-</select>
-
-<button onclick="calcTuVi()">TÍNH TỬ VI</button>
-
-<div id="tuviBox"></div>
-
-</div>
-
-<!-- ================= VIETLOTT ================= -->
-<div class="card">
-
-<div class="section">🎰 Vietlott</div>
 
 <select id="game">
 <option value="645">Mega 6/45</option>
 <option value="655">Power 6/55</option>
-<option value="3d">3D Max</option>
+<option value="3d">3D Max Pro</option>
 </select>
 
 <select id="mode">
@@ -145,14 +97,12 @@ margin-top:10px;
 <option value="hopmenh">🍀 Hợp mệnh</option>
 </select>
 
-<button onclick="quay()">QUAY NGAY</button>
+<button onclick="spin()">QUAY NGAY</button>
 
 </div>
 
-<!-- ================= RESULT ================= -->
 <div class="card">
 
-<div class="section">🎯 Kết quả</div>
 <div id="result"></div>
 <div id="score"></div>
 
@@ -160,114 +110,81 @@ margin-top:10px;
 
 <script>
 
-let lucky=[];
+let lucky=[2,5,8]; // demo (bạn có thể nối tử vi sau)
 
-/* ================= TỬ VI ================= */
-function calcTuVi(){
-
-let d=Number(document.getElementById("day").value);
-let m=Number(document.getElementById("month").value);
-let y=Number(document.getElementById("year").value);
-
-if(!d||!m||!y){
-alert("Nhập đủ ngày tháng năm!");
-return;
-}
-
-let age=new Date().getFullYear()-y;
-
-let a=(d+age)%10;
-let b=(m+age)%10;
-let c=(d+m+age)%10;
-
-lucky=[a,b,c];
-
-document.getElementById("tuviBox").innerHTML=
-"⭐ Số may mắn: <b>"+lucky.join(" - ")+"</b>";
-}
-
-/* ================= RANDOM ================= */
 function rand(max){
 return Math.floor(Math.random()*max)+1;
 }
 
-/* ================= PICK ================= */
-function pick(max,force){
+/* ================= SPIN EFFECT ================= */
+function startSpin(el,max,final,delay,pad){
 
-if(lucky.length>0 && Math.random()<force){
-let p=lucky[Math.floor(Math.random()*lucky.length)];
-return Math.min(max,Math.max(1,p+rand(3)));
+let t=setInterval(()=>{
+
+let fake = rand(max);
+el.innerText = fake.toString().padStart(pad,"0");
+
+},80);
+
+setTimeout(()=>{
+
+clearInterval(t);
+el.innerText = final.toString().padStart(pad,"0");
+
+},delay);
+
 }
 
-return rand(max);
-}
+/* ================= GENERATE ================= */
+function gen(game){
 
-/* ================= FIXED GENERATE ================= */
-function generate(game,mode){
+let max = game==="645"?45 : game==="655"?55 : 999;
+let count = game==="3d"?2:6;
 
 let nums=[];
-let max = (game==="645")?45:(game==="655")?55:999;
-let count = (game==="3d")?2:6;
 
 for(let i=0;i<count;i++){
-
-if(mode==="random"){
 nums.push(rand(max));
-}
-
-else if(mode==="tuvi"){
-nums.push(pick(max,0.6));
-}
-
-else{
-nums.push(pick(max,0.9));
-}
-
 }
 
 return nums;
 }
 
-/* ================= SCORE ================= */
-function calcScore(nums){
-
-let hit=0;
-
-nums.forEach(n=>{
-if(lucky.includes(n%10)) hit++;
-});
-
-return Math.min(100,hit*20 + Math.floor(Math.random()*20));
-}
-
-/* ================= QUAY (FIXED) ================= */
-function quay(){
+/* ================= MAIN ================= */
+function spin(){
 
 let game=document.getElementById("game").value;
-let mode=document.getElementById("mode").value;
 
-let nums=generate(game,mode);
-
-let result=document.getElementById("result");
+let box=document.getElementById("result");
 let score=document.getElementById("score");
 
-result.innerHTML="";
+box.innerHTML="";
 
-nums.forEach(n=>{
+let nums=gen(game);
+
+nums.forEach((n,i)=>{
 
 let d=document.createElement("div");
 d.className="ball";
 
-if(lucky.includes(n%10)) d.classList.add("hot");
+box.appendChild(d);
 
-let pad = (game==="3d")?3:2;
-d.innerText=n.toString().padStart(pad,"0");
-
-result.appendChild(d);
+/* spin delay từng bóng cho giống máy thật */
+startSpin(
+d,
+(game==="645")?45:(game==="655")?55:999,
+n,
+1000 + i*300,
+(game==="3d")?3:2
+);
 
 });
 
-score.innerHTML="📊 Hợp mệnh: <b>"+calcScore(nums)+"/100</b>";
+score.innerHTML="⏳ Đang quay...";
+
+setTimeout(()=>{
+score.innerHTML="✔ Quay xong!";
+},2500);
 
 }
 
