@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vietlott Hợp Mệnh Pro</title>
+<title>Vietlott Red Gold Pro</title>
 
 <style>
 *{box-sizing:border-box}
@@ -13,18 +13,19 @@ body{
 margin:0;
 padding:15px;
 font-family:Arial,sans-serif;
-background:linear-gradient(135deg,#fff7e6,#ffe9e9);
+background:linear-gradient(135deg,#fff3cd,#ffe0b2);
 text-align:center;
 }
 
 .header{
 background:#c62828;
-color:#fff;
-padding:15px;
+color:#ffeb3b;
+padding:16px;
 border-radius:15px;
 font-size:26px;
 font-weight:bold;
 margin-bottom:15px;
+box-shadow:0 4px 10px rgba(0,0,0,.2);
 }
 
 .card{
@@ -33,9 +34,10 @@ padding:15px;
 border-radius:15px;
 margin-bottom:15px;
 box-shadow:0 3px 10px rgba(0,0,0,.15);
+border:2px solid #fbc02d;
 }
 
-select,input,button{
+input,select,button{
 width:100%;
 padding:12px;
 font-size:16px;
@@ -50,9 +52,16 @@ border:2px solid #fbc02d;
 button{
 border:none;
 background:#d32f2f;
-color:#fff;
+color:#ffeb3b;
 font-weight:bold;
 cursor:pointer;
+}
+
+.sectionTitle{
+font-size:20px;
+font-weight:bold;
+color:#c62828;
+margin-bottom:10px;
 }
 
 .ball{
@@ -66,23 +75,17 @@ margin:5px;
 font-size:20px;
 font-weight:bold;
 background:radial-gradient(circle,#fff176,#fbc02d);
-transition:0.2s;
+box-shadow:0 3px 8px rgba(0,0,0,.2);
+transition:.2s;
 }
 
 .ball.hot{
 background:radial-gradient(circle,#ffeb3b,#ff9800);
-transform:scale(1.1);
-box-shadow:0 0 10px rgba(255,152,0,.8);
+transform:scale(1.15);
+box-shadow:0 0 12px rgba(255,152,0,.8);
 }
 
-.resultTitle{
-font-size:20px;
-font-weight:bold;
-margin:10px 0;
-color:#c62828;
-}
-
-.scoreBox{
+.score{
 font-size:18px;
 font-weight:bold;
 margin-top:10px;
@@ -98,14 +101,37 @@ color:#555;
 
 <body>
 
-<div class="header">🎰 Vietlott Hợp Mệnh + Score</div>
+<div class="header">🎰 VIETLOTT RED GOLD + 🔮 TỬ VI</div>
 
-<!-- ================= INPUT ================= -->
+<!-- ================= TỬ VI ================= -->
 <div class="card">
 
-<div class="resultTitle">🔮 Tử vi</div>
+<div class="sectionTitle">🔮 Thông tin tử vi</div>
 
-<input id="birthYear" type="number" placeholder="Nhập năm sinh">
+<input id="name" placeholder="Họ tên">
+<select id="gender">
+<option>Nam</option>
+<option>Nữ</option>
+</select>
+
+<input id="day" type="number" placeholder="Ngày sinh">
+<input id="month" type="number" placeholder="Tháng sinh">
+<input id="year" type="number" placeholder="Năm sinh">
+
+<select id="hour">
+<option value="ty">Tý (23–01)</option>
+<option value="suu">Sửu (01–03)</option>
+<option value="dan">Dần (03–05)</option>
+<option value="mao">Mão (05–07)</option>
+<option value="thin">Thìn (07–09)</option>
+<option value="ty2">Tỵ (09–11)</option>
+<option value="ngo">Ngọ (11–13)</option>
+<option value="mui">Mùi (13–15)</option>
+<option value="than">Thân (15–17)</option>
+<option value="dau">Dậu (17–19)</option>
+<option value="tuat">Tuất (19–21)</option>
+<option value="hoi">Hợi (21–23)</option>
+</select>
 
 <button onclick="calcTuVi()">Xem tử vi</button>
 
@@ -115,15 +141,16 @@ Chưa có dữ liệu
 
 </div>
 
-<!-- ================= MODE ================= -->
+<!-- ================= VIETLOTT ================= -->
 <div class="card">
 
-<div class="resultTitle">⚙️ Chế độ</div>
+<div class="sectionTitle">🎰 Vietlott</div>
 
 <select id="mode">
 <option value="random">🎲 Ngẫu nhiên</option>
-<option value="tuvi">🔮 Tử vi</option>
+<option value="tuvi">🔮 Theo tử vi</option>
 <option value="hopmenh">🍀 Hợp mệnh</option>
+<option value="phongthuy">🧿 Phong thủy tổng hợp</option>
 </select>
 
 <button onclick="quay()">QUAY NGAY</button>
@@ -133,42 +160,56 @@ Chưa có dữ liệu
 <!-- ================= RESULT ================= -->
 <div class="card">
 
-<div class="resultTitle">🎰 Kết quả</div>
-
+<div class="sectionTitle">🎯 Kết quả</div>
 <div id="result">Chưa có kết quả</div>
-
-<div id="score" class="scoreBox"></div>
+<div id="score" class="score"></div>
 
 </div>
 
 <script>
 
 let lucky=[];
-let ageUser=0;
+let energy=0;
 
 /* ================= TỬ VI ================= */
 function calcTuVi(){
 
-let y=document.getElementById("birthYear").value;
-if(!y){alert("Nhập năm sinh!");return;}
+let d=parseInt(document.getElementById("day").value||0);
+let m=parseInt(document.getElementById("month").value||0);
+let y=parseInt(document.getElementById("year").value||0);
+let name=document.getElementById("name").value;
+let gender=document.getElementById("gender").value;
+let hour=document.getElementById("hour").value;
 
-let now=new Date();
-ageUser=now.getFullYear()-parseInt(y);
+if(!d||!m||!y){
+alert("Nhập đầy đủ ngày tháng năm!");
+return;
+}
 
-let d=now.getDate();
-let m=now.getMonth()+1;
+let age=new Date().getFullYear()-y;
 
-let l1=(d+ageUser)%10;
-let l2=(m+ageUser)%10;
-let l3=(l1+l2+d)%10;
+/* tạo số may mắn */
+let a=(d+age)%10;
+let b=(m+age)%10;
+let c=(d+m+age)%10;
 
-lucky=[l1,l2,l3];
+lucky=[a,b,c];
+
+/* năng lượng theo giờ */
+let energyMap={
+ty:60,suu:55,dan:65,mao:70,thin:75,ty2:80,
+ngo:85,mui:78,than:72,dau:68,tuat:66,hoi:62
+};
+
+energy=energyMap[hour]||60;
 
 document.getElementById("tuviBox").innerHTML=
 `
-📅 Ngày: ${d}/${m}<br>
-👤 Tuổi: ${ageUser}<br>
-⭐ Số may mắn: <b>${lucky.join(" - ")}</b>
+👤 ${name} (${gender})<br>
+📅 ${d}/${m}/${y} - tuổi ${age}<br>
+⏰ Khung giờ: ${hour}<br><br>
+⭐ Số may mắn: <b>${lucky.join(" - ")}</b><br>
+🧭 Năng lượng: <b>${energy}/100</b>
 `;
 }
 
@@ -177,8 +218,8 @@ function rand(max){
 return Math.floor(Math.random()*max)+1;
 }
 
-/* ================= GENERATE ================= */
-function smartPick(max,force){
+/* ================= SMART ================= */
+function pick(max,force){
 
 let r=Math.random();
 
@@ -190,67 +231,82 @@ return Math.min(max,Math.max(1,p+Math.floor(Math.random()*3)));
 return rand(max);
 }
 
-function generate(mode){
+/* ================= GENERATE ================= */
+function gen(mode){
 
-let nums=[];
+let n=[];
 
 if(mode==="random"){
-for(let i=0;i<6;i++) nums.push(rand(45));
+for(let i=0;i<6;i++) n.push(rand(45));
 }
 
 else if(mode==="tuvi"){
-for(let i=0;i<6;i++) nums.push(smartPick(45,0.7));
+for(let i=0;i<6;i++) n.push(pick(45,0.6));
+}
+
+else if(mode==="hopmenh"){
+for(let i=0;i<6;i++) n.push(pick(45,0.85));
 }
 
 else{
-for(let i=0;i<6;i++) nums.push(smartPick(45,0.9));
+
+/* phong thủy tổng hợp */
+for(let i=0;i<6;i++){
+
+let base=rand(45);
+
+if(Math.random()<energy/100){
+base=lucky[Math.floor(Math.random()*lucky.length)]+rand(3);
 }
 
-return nums;
+n.push(Math.min(45,base));
+
+}
+
+}
+
+return n;
 }
 
 /* ================= SCORE ================= */
-function calcScore(nums){
+function score(nums){
 
-let match=0;
+let hit=0;
 
 nums.forEach(n=>{
-if(lucky.includes(n%10)) match++;
+if(lucky.includes(n%10)) hit++;
 });
 
-/* điểm 0–100 */
-return Math.min(100,match*20 + Math.floor(Math.random()*20));
+return Math.min(100,hit*20 + Math.floor(Math.random()*20) + energy/2);
 }
 
 /* ================= QUAY ================= */
 function quay(){
 
 let mode=document.getElementById("mode").value;
-let result=document.getElementById("result");
-let scoreBox=document.getElementById("score");
+let box=document.getElementById("result");
+let sc=document.getElementById("score");
 
-let nums=generate(mode);
+let nums=gen(mode);
 
-result.innerHTML="";
-
-let score=calcScore(nums);
+box.innerHTML="";
 
 nums.forEach(n=>{
 
 let d=document.createElement("div");
 d.className="ball";
 
-/* HIGHLIGHT */
+/* highlight */
 if(lucky.includes(n%10)){
 d.classList.add("hot");
 }
 
 d.innerText=n.toString().padStart(2,"0");
-result.appendChild(d);
+box.appendChild(d);
 
 });
 
-scoreBox.innerHTML="📊 Độ hợp mệnh: <b>"+score+"/100</b>";
+sc.innerHTML="📊 Hợp mệnh: <b>"+score(nums).toFixed(0)+"/100</b>";
 
 }
 
