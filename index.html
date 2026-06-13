@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vietlott Pro MAX</title>
+<title>Vietlott Pro SLOT</title>
 
 <style>
 *{
@@ -15,7 +15,7 @@ body{
 margin:0;
 padding:15px;
 font-family:Arial,sans-serif;
-background:linear-gradient(135deg,#fff7e6,#ffe0e0);
+background:linear-gradient(135deg,#fff7e6,#ffe9e9);
 text-align:center;
 }
 
@@ -27,7 +27,6 @@ border-radius:15px;
 font-size:28px;
 font-weight:bold;
 margin-bottom:15px;
-box-shadow:0 5px 15px rgba(0,0,0,.2);
 }
 
 .card{
@@ -59,10 +58,6 @@ margin-top:10px;
 cursor:pointer;
 }
 
-.mainButton:active{
-transform:scale(0.98);
-}
-
 .quickBox{
 display:flex;
 gap:10px;
@@ -90,21 +85,7 @@ align-items:center;
 font-size:22px;
 font-weight:bold;
 margin:5px;
-color:#000;
 box-shadow:0 3px 8px rgba(0,0,0,.2);
-animation:pop .2s ease;
-}
-
-@keyframes pop{
-from{transform:scale(0.3);opacity:0;}
-to{transform:scale(1);opacity:1;}
-}
-
-.resultTitle{
-font-size:22px;
-font-weight:bold;
-margin-bottom:10px;
-color:#c62828;
 }
 
 .number3d{
@@ -112,6 +93,7 @@ font-size:40px;
 font-weight:bold;
 color:#c62828;
 margin:10px;
+letter-spacing:5px;
 }
 
 .sectionTitle{
@@ -127,20 +109,13 @@ border-bottom:1px solid #ddd;
 font-size:14px;
 }
 
-.favoriteBox{
-padding:10px;
-background:#fff9c4;
-border-radius:10px;
-margin-top:10px;
-}
-
 </style>
 </head>
 
 <body>
 
 <div class="header">
-🎰 Vietlott Pro MAX
+🎰 Vietlott Pro SLOT 3D
 </div>
 
 <div class="card">
@@ -150,17 +125,10 @@ margin-top:10px;
 <select id="gameMode">
 <option value="mega">Mega 6/45</option>
 <option value="power">Power 6/55</option>
-<option value="3d">3D Max Pro</option>
+<option value="3d">3D Max Slot</option>
 </select>
 
-<button class="mainButton" onclick="quaySo()">
-🎲 QUAY NGAY
-</button>
-
-<div class="quickBox">
-<button class="quickBtn" onclick="quayNhieu(10)">10 lần</button>
-<button class="quickBtn" onclick="quayNhieu(100)">100 lần</button>
-</div>
+<button class="mainButton" onclick="quaySo()">🎲 QUAY NGAY</button>
 
 </div>
 
@@ -169,41 +137,30 @@ margin-top:10px;
 </div>
 
 <div class="card">
-<div class="sectionTitle">⭐ Bộ số yêu thích</div>
-<div id="favoriteArea">Chưa lưu bộ số nào</div>
-</div>
-
-<div class="card">
-<div class="sectionTitle">📊 Thống kê</div>
-<div id="statsArea">Chưa có dữ liệu</div>
-</div>
-
-<div class="card">
 <div class="sectionTitle">📜 Lịch sử</div>
 <div id="historyArea">Chưa có lịch sử</div>
 </div>
 
 <script>
+
 let historyData = [];
-let stats = {};
 let isRunning = false;
 
-/* âm thanh tick */
+/* âm thanh nhẹ */
 function tickSound(){
   let ctx = new (window.AudioContext || window.webkitAudioContext)();
   let osc = ctx.createOscillator();
   let gain = ctx.createGain();
 
   osc.type = "square";
-  osc.frequency.value = 1000;
-
-  gain.gain.value = 0.05;
+  osc.frequency.value = 900;
+  gain.gain.value = 0.03;
 
   osc.connect(gain);
   gain.connect(ctx.destination);
 
   osc.start();
-  osc.stop(ctx.currentTime + 0.05);
+  osc.stop(ctx.currentTime + 0.04);
 }
 
 function randomUnique(count,max){
@@ -216,130 +173,115 @@ function randomUnique(count,max){
   return arr;
 }
 
-function saveFavorite(text){
-  localStorage.setItem("favoriteNumbers",text);
-  loadFavorite();
-}
-
-function loadFavorite(){
-  let fav=localStorage.getItem("favoriteNumbers");
-  document.getElementById("favoriteArea").innerHTML =
-  fav || "Chưa lưu bộ số nào";
-}
-
 function updateHistory(text){
   historyData.unshift(text);
-  if(historyData.length>50) historyData.pop();
+  if(historyData.length>30) historyData.pop();
 
   document.getElementById("historyArea").innerHTML =
   historyData.map(i=>`<div class="historyItem">${i}</div>`).join("");
 }
 
-function updateStats(numbers){
-  numbers.forEach(n=>{
-    stats[n]=(stats[n]||0)+1;
-  });
+/* SLOT animation */
+function slotSpin(el, final, max, delay){
+  let count = 0;
 
-  let top="-",count=0;
+  let t = setInterval(()=>{
+    el.innerText = Math.floor(Math.random()*max)
+      .toString().padStart(3,"0");
 
-  for(let i in stats){
-    if(stats[i]>count){
-      count=stats[i];
-      top=i;
-    }
-  }
-
-  document.getElementById("statsArea").innerHTML =
-  `🔥 Xuất hiện nhiều nhất: <b>${top}</b> (${count} lần)`;
-}
-
-function animateBall(el,final,max,cb){
-  let c=0;
-
-  let t=setInterval(()=>{
-    el.innerText=Math.floor(Math.random()*max)+1;
     tickSound();
-    c++;
+    count++;
 
-    if(c>18){
+    if(count > 20){
       clearInterval(t);
-      el.innerText=final;
-      if(cb) cb();
+      el.innerText = final;
     }
-  },60);
+
+  }, delay);
 }
 
 function quaySo(){
   if(isRunning) return;
-  isRunning=true;
+  isRunning = true;
 
-  let mode=document.getElementById("gameMode").value;
-  let result=document.getElementById("result");
-  result.innerHTML="";
+  let mode = document.getElementById("gameMode").value;
+  let result = document.getElementById("result");
+  result.innerHTML = "";
 
-  if(mode==="mega"){
-    let nums=randomUnique(6,45);
+  /* ================= MEGA ================= */
+  if(mode === "mega"){
 
-    result.innerHTML=`<div class="resultTitle">🎰 Mega 6/45</div>`;
+    let nums = randomUnique(6,45);
 
-    nums.forEach(n=>{
-      let d=document.createElement("div");
-      d.className="ball";
-      d.innerText="0";
-      result.appendChild(d);
-      animateBall(d,n,45);
-    });
-
-    setTimeout(()=>{
-      updateHistory("Mega 6/45: "+nums.join("-"));
-      updateStats(nums);
-      saveFavorite(nums.join(" - "));
-      isRunning=false;
-    },1300);
-  }
-
-  else if(mode==="power"){
-    let nums=randomUnique(6,55);
-
-    result.innerHTML=`<div class="resultTitle">⚡ Power 6/55</div>`;
+    result.innerHTML = `<div class="sectionTitle">🎰 Mega 6/45</div>`;
 
     nums.forEach(n=>{
       let d=document.createElement("div");
       d.className="ball";
       d.innerText="0";
       result.appendChild(d);
-      animateBall(d,n,55);
+
+      setTimeout(()=>slotSpin(d,n,45,140), Math.random()*400);
     });
 
     setTimeout(()=>{
-      updateHistory("Power 6/55: "+nums.join("-"));
-      updateStats(nums);
-      saveFavorite(nums.join(" - "));
+      updateHistory("Mega: "+nums.join("-"));
       isRunning=false;
-    },1300);
+    },2500);
   }
 
+  /* ================= POWER ================= */
+  else if(mode === "power"){
+
+    let nums = randomUnique(6,55);
+
+    result.innerHTML = `<div class="sectionTitle">⚡ Power 6/55</div>`;
+
+    nums.forEach(n=>{
+      let d=document.createElement("div");
+      d.className="ball";
+      d.innerText="0";
+      result.appendChild(d);
+
+      setTimeout(()=>slotSpin(d,n,55,140), Math.random()*500);
+    });
+
+    setTimeout(()=>{
+      updateHistory("Power: "+nums.join("-"));
+      isRunning=false;
+    },2600);
+  }
+
+  /* ================= 3D SLOT (REAL FEEL) ================= */
   else{
-    let a=Math.floor(Math.random()*1000).toString().padStart(3,"0");
-    let b=Math.floor(Math.random()*1000).toString().padStart(3,"0");
 
-    result.innerHTML=`
-      <div class="resultTitle">🎯 3D Max Pro</div>
-      <div class="number3d">Bộ 1: ${a}</div>
-      <div class="number3d">Bộ 2: ${b}</div>
+    let aFinal = Math.floor(Math.random()*1000).toString().padStart(3,"0");
+    let bFinal = Math.floor(Math.random()*1000).toString().padStart(3,"0");
+
+    result.innerHTML = `
+      <div class="sectionTitle">🎯 3D SLOT MACHINE</div>
+
+      <div class="number3d" id="a">000</div>
+      <div class="number3d" id="b">000</div>
     `;
 
-    updateHistory("3D: "+a+" | "+b);
-    saveFavorite(a+" | "+b);
-    isRunning=false;
+    let a = document.getElementById("a");
+    let b = document.getElementById("b");
+
+    /* từng cột chạy chậm kiểu slot thật */
+    slotSpin(a, aFinal, 1000, 160);
+
+    setTimeout(()=>{
+      slotSpin(b, bFinal, 1000, 180);
+    }, 600);
+
+    setTimeout(()=>{
+      updateHistory("3D: "+aFinal+" | "+bFinal);
+      isRunning=false;
+    }, 3000);
   }
 }
 
-function quayNhieu(n){
-  alert("Bản siêu không cho quay spam "+n+" lần để tránh lag 😄");
-}
-
-loadFavorite();
 </script>
 
 </body>
