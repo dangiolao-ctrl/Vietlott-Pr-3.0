@@ -4,11 +4,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Vietlott Pro 3.0</title>
+<title>Vietlott Pro MAX</title>
 
 <style>
-
 *{
 box-sizing:border-box;
 }
@@ -17,7 +15,7 @@ body{
 margin:0;
 padding:15px;
 font-family:Arial,sans-serif;
-background:#fff7e6;
+background:linear-gradient(135deg,#fff7e6,#ffe0e0);
 text-align:center;
 }
 
@@ -29,6 +27,7 @@ border-radius:15px;
 font-size:28px;
 font-weight:bold;
 margin-bottom:15px;
+box-shadow:0 5px 15px rgba(0,0,0,.2);
 }
 
 .card{
@@ -36,7 +35,7 @@ background:white;
 padding:15px;
 border-radius:15px;
 margin-bottom:15px;
-box-shadow:0 2px 8px rgba(0,0,0,.15);
+box-shadow:0 3px 10px rgba(0,0,0,.15);
 }
 
 select{
@@ -57,6 +56,11 @@ border-radius:12px;
 background:#d32f2f;
 color:white;
 margin-top:10px;
+cursor:pointer;
+}
+
+.mainButton:active{
+transform:scale(0.98);
 }
 
 .quickBox{
@@ -78,7 +82,7 @@ font-size:16px;
 .ball{
 width:60px;
 height:60px;
-background:#fbc02d;
+background:radial-gradient(circle,#fff176,#fbc02d);
 border-radius:50%;
 display:inline-flex;
 justify-content:center;
@@ -87,6 +91,13 @@ font-size:22px;
 font-weight:bold;
 margin:5px;
 color:#000;
+box-shadow:0 3px 8px rgba(0,0,0,.2);
+animation:pop .2s ease;
+}
+
+@keyframes pop{
+from{transform:scale(0.3);opacity:0;}
+to{transform:scale(1);opacity:1;}
 }
 
 .resultTitle{
@@ -129,338 +140,206 @@ margin-top:10px;
 <body>
 
 <div class="header">
-🎰 Vietlott Pro 3.0
+🎰 Vietlott Pro MAX
 </div>
 
 <div class="card">
 
-<div class="sectionTitle">
-Chọn trò chơi
-</div>
+<div class="sectionTitle">Chọn trò chơi</div>
 
 <select id="gameMode">
-
-<option value="mega">
-Mega 6/45
-</option>
-
-<option value="power">
-Power 6/55
-</option>
-
-<option value="3d">
-3D Max Pro
-</option>
-
+<option value="mega">Mega 6/45</option>
+<option value="power">Power 6/55</option>
+<option value="3d">3D Max Pro</option>
 </select>
 
 <button class="mainButton" onclick="quaySo()">
-🎲 Quay số
+🎲 QUAY NGAY
 </button>
 
 <div class="quickBox">
-
-<button class="quickBtn" onclick="quayNhieu(10)">
-10 lần
-</button>
-
-<button class="quickBtn" onclick="quayNhieu(100)">
-100 lần
-</button>
-
+<button class="quickBtn" onclick="quayNhieu(10)">10 lần</button>
+<button class="quickBtn" onclick="quayNhieu(100)">100 lần</button>
 </div>
 
 </div>
 
 <div class="card">
-
-<div id="result">
-
-Chưa có kết quả
-
-</div>
-
+<div id="result">Chưa có kết quả</div>
 </div>
 
 <div class="card">
-
-<div class="sectionTitle">
-⭐ Bộ số yêu thích
-</div>
-
-<div id="favoriteArea">
-
-Chưa lưu bộ số nào
-
-</div>
-
+<div class="sectionTitle">⭐ Bộ số yêu thích</div>
+<div id="favoriteArea">Chưa lưu bộ số nào</div>
 </div>
 
 <div class="card">
-
-<div class="sectionTitle">
-📊 Thống kê
-</div>
-
-<div id="statsArea">
-
-Chưa có dữ liệu
-
-</div>
-
+<div class="sectionTitle">📊 Thống kê</div>
+<div id="statsArea">Chưa có dữ liệu</div>
 </div>
 
 <div class="card">
-
-<div class="sectionTitle">
-📜 Lịch sử
-</div>
-
-<div id="historyArea">
-
-Chưa có lịch sử
-
-</div>
-
+<div class="sectionTitle">📜 Lịch sử</div>
+<div id="historyArea">Chưa có lịch sử</div>
 </div>
 
 <script>
 let historyData = [];
 let stats = {};
+let isRunning = false;
+
+/* âm thanh tick */
+function tickSound(){
+  let ctx = new (window.AudioContext || window.webkitAudioContext)();
+  let osc = ctx.createOscillator();
+  let gain = ctx.createGain();
+
+  osc.type = "square";
+  osc.frequency.value = 1000;
+
+  gain.gain.value = 0.05;
+
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+
+  osc.start();
+  osc.stop(ctx.currentTime + 0.05);
+}
 
 function randomUnique(count,max){
-
-let arr=[];
-
-while(arr.length<count){
-
-let n =
-Math.floor(Math.random()*max)+1;
-
-if(!arr.includes(n)){
-arr.push(n);
-}
-
-}
-
-arr.sort((a,b)=>a-b);
-
-return arr;
-
+  let arr=[];
+  while(arr.length<count){
+    let n=Math.floor(Math.random()*max)+1;
+    if(!arr.includes(n)) arr.push(n);
+  }
+  arr.sort((a,b)=>a-b);
+  return arr;
 }
 
 function saveFavorite(text){
-
-localStorage.setItem(
-"favoriteNumbers",
-text
-);
-
-loadFavorite();
-
+  localStorage.setItem("favoriteNumbers",text);
+  loadFavorite();
 }
 
 function loadFavorite(){
-
-let fav =
-localStorage.getItem(
-"favoriteNumbers"
-);
-
-document.getElementById(
-"favoriteArea"
-).innerHTML =
-fav || "Chưa lưu bộ số nào";
-
+  let fav=localStorage.getItem("favoriteNumbers");
+  document.getElementById("favoriteArea").innerHTML =
+  fav || "Chưa lưu bộ số nào";
 }
 
 function updateHistory(text){
+  historyData.unshift(text);
+  if(historyData.length>50) historyData.pop();
 
-historyData.unshift(text);
-
-if(historyData.length>50){
-historyData.pop();
-}
-
-let html="";
-
-historyData.forEach(item=>{
-
-html +=
-`<div class="historyItem">${item}</div>`;
-
-});
-
-document.getElementById(
-"historyArea"
-).innerHTML = html;
-
+  document.getElementById("historyArea").innerHTML =
+  historyData.map(i=>`<div class="historyItem">${i}</div>`).join("");
 }
 
 function updateStats(numbers){
+  numbers.forEach(n=>{
+    stats[n]=(stats[n]||0)+1;
+  });
 
-numbers.forEach(n=>{
+  let top="-",count=0;
 
-if(!stats[n]){
-stats[n]=0;
+  for(let i in stats){
+    if(stats[i]>count){
+      count=stats[i];
+      top=i;
+    }
+  }
+
+  document.getElementById("statsArea").innerHTML =
+  `🔥 Xuất hiện nhiều nhất: <b>${top}</b> (${count} lần)`;
 }
 
-stats[n]++;
+function animateBall(el,final,max,cb){
+  let c=0;
 
-});
+  let t=setInterval(()=>{
+    el.innerText=Math.floor(Math.random()*max)+1;
+    tickSound();
+    c++;
 
-let topNumber="-";
-let topCount=0;
-
-for(let n in stats){
-
-if(stats[n]>topCount){
-
-topCount=stats[n];
-topNumber=n;
-
-}
-
-}
-
-document.getElementById(
-"statsArea"
-).innerHTML=
-
-`🔥 Xuất hiện nhiều nhất:
-<b>${topNumber}</b>
-(${topCount} lần)`;
-
+    if(c>18){
+      clearInterval(t);
+      el.innerText=final;
+      if(cb) cb();
+    }
+  },60);
 }
 
 function quaySo(){
+  if(isRunning) return;
+  isRunning=true;
 
-let mode =
-document.getElementById(
-"gameMode"
-).value;
+  let mode=document.getElementById("gameMode").value;
+  let result=document.getElementById("result");
+  result.innerHTML="";
 
-let html="";
-let historyText="";
+  if(mode==="mega"){
+    let nums=randomUnique(6,45);
 
-if(mode==="mega"){
+    result.innerHTML=`<div class="resultTitle">🎰 Mega 6/45</div>`;
 
-let numbers =
-randomUnique(6,45);
+    nums.forEach(n=>{
+      let d=document.createElement("div");
+      d.className="ball";
+      d.innerText="0";
+      result.appendChild(d);
+      animateBall(d,n,45);
+    });
 
-html +=
-`<div class="resultTitle">
-🎰 Mega 6/45
-</div>`;
+    setTimeout(()=>{
+      updateHistory("Mega 6/45: "+nums.join("-"));
+      updateStats(nums);
+      saveFavorite(nums.join(" - "));
+      isRunning=false;
+    },1300);
+  }
 
-numbers.forEach(n=>{
+  else if(mode==="power"){
+    let nums=randomUnique(6,55);
 
-html +=
-`<div class="ball">${n}</div>`;
+    result.innerHTML=`<div class="resultTitle">⚡ Power 6/55</div>`;
 
-});
+    nums.forEach(n=>{
+      let d=document.createElement("div");
+      d.className="ball";
+      d.innerText="0";
+      result.appendChild(d);
+      animateBall(d,n,55);
+    });
 
-historyText =
-"🎰 Mega 6/45 : "
-+ numbers.join("-");
+    setTimeout(()=>{
+      updateHistory("Power 6/55: "+nums.join("-"));
+      updateStats(nums);
+      saveFavorite(nums.join(" - "));
+      isRunning=false;
+    },1300);
+  }
 
-updateStats(numbers);
+  else{
+    let a=Math.floor(Math.random()*1000).toString().padStart(3,"0");
+    let b=Math.floor(Math.random()*1000).toString().padStart(3,"0");
 
-saveFavorite(numbers.join(" - "));
+    result.innerHTML=`
+      <div class="resultTitle">🎯 3D Max Pro</div>
+      <div class="number3d">Bộ 1: ${a}</div>
+      <div class="number3d">Bộ 2: ${b}</div>
+    `;
 
+    updateHistory("3D: "+a+" | "+b);
+    saveFavorite(a+" | "+b);
+    isRunning=false;
+  }
 }
 
-else if(mode==="power"){
-
-let numbers =
-randomUnique(6,55);
-
-html +=
-`<div class="resultTitle">
-⚡ Power 6/55
-</div>`;
-
-numbers.forEach(n=>{
-
-html +=
-`<div class="ball">${n}</div>`;
-
-});
-
-historyText =
-"⚡ Power 6/55 : "
-+ numbers.join("-");
-
-updateStats(numbers);
-
-saveFavorite(numbers.join(" - "));
-
-}
-
-else{
-
-let bo1 =
-Math.floor(Math.random()*1000)
-.toString()
-.padStart(3,"0");
-
-let bo2 =
-Math.floor(Math.random()*1000)
-.toString()
-.padStart(3,"0");
-
-html +=
-`<div class="resultTitle">
-🎯 3D Max Pro
-</div>
-
-<div class="number3d">
-Bộ 1: ${bo1}
-</div>
-
-<div class="number3d">
-Bộ 2: ${bo2}
-</div>`;
-
-historyText =
-"🎯 3D Max Pro : "
-+ bo1 + " | " + bo2;
-
-saveFavorite(
-"Bộ 1: " +
-bo1 +
-" | Bộ 2: " +
-bo2
-);
-
-}
-
-document.getElementById(
-"result"
-).innerHTML = html;
-
-updateHistory(historyText);
-
-}
-
-function quayNhieu(soLan){
-
-for(let i=0;i<soLan;i++){
-
-quaySo();
-
-}
-
-alert(
-"Đã quay "
-+ soLan +
-" lần"
-);
-
+function quayNhieu(n){
+  alert("Bản siêu không cho quay spam "+n+" lần để tránh lag 😄");
 }
 
 loadFavorite();
-
 </script>
 
 </body>
