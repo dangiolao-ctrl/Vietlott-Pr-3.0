@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vietlott Pro SLOT</title>
+<title>Vietlott Pro SLOT FIX</title>
 
 <style>
 *{
@@ -58,22 +58,6 @@ margin-top:10px;
 cursor:pointer;
 }
 
-.quickBox{
-display:flex;
-gap:10px;
-margin-top:10px;
-}
-
-.quickBtn{
-flex:1;
-padding:12px;
-border:none;
-border-radius:10px;
-background:#fbc02d;
-font-weight:bold;
-font-size:16px;
-}
-
 .ball{
 width:60px;
 height:60px;
@@ -89,7 +73,7 @@ box-shadow:0 3px 8px rgba(0,0,0,.2);
 }
 
 .number3d{
-font-size:40px;
+font-size:42px;
 font-weight:bold;
 color:#c62828;
 margin:10px;
@@ -109,14 +93,28 @@ border-bottom:1px solid #ddd;
 font-size:14px;
 }
 
+.quickBox{
+display:flex;
+gap:10px;
+margin-top:10px;
+}
+
+.quickBtn{
+flex:1;
+padding:12px;
+border:none;
+border-radius:10px;
+background:#fbc02d;
+font-weight:bold;
+font-size:16px;
+}
 </style>
+
 </head>
 
 <body>
 
-<div class="header">
-🎰 Vietlott Pro SLOT 3D
-</div>
+<div class="header">🎰 Vietlott Pro SLOT FIX</div>
 
 <div class="card">
 
@@ -143,26 +141,49 @@ font-size:14px;
 
 <script>
 
-let historyData = [];
-let isRunning = false;
+let historyData=[];
+let isRunning=false;
 
 /* âm thanh nhẹ */
 function tickSound(){
-  let ctx = new (window.AudioContext || window.webkitAudioContext)();
-  let osc = ctx.createOscillator();
-  let gain = ctx.createGain();
+  let ctx=new (window.AudioContext||window.webkitAudioContext)();
+  let osc=ctx.createOscillator();
+  let gain=ctx.createGain();
 
-  osc.type = "square";
-  osc.frequency.value = 900;
-  gain.gain.value = 0.03;
+  osc.type="square";
+  osc.frequency.value=900;
+  gain.gain.value=0.03;
 
   osc.connect(gain);
   gain.connect(ctx.destination);
 
   osc.start();
-  osc.stop(ctx.currentTime + 0.04);
+  osc.stop(ctx.currentTime+0.04);
 }
 
+/* SLOT ENGINE */
+function slotSpin(el, final, max, delay, digits){
+
+  let count=0;
+
+  let t=setInterval(()=>{
+
+    let fake=Math.floor(Math.random()*max)+1;
+
+    el.innerText=fake.toString().padStart(digits,"0");
+
+    tickSound();
+    count++;
+
+    if(count>18){
+      clearInterval(t);
+      el.innerText=final.toString().padStart(digits,"0");
+    }
+
+  },delay);
+}
+
+/* random không trùng */
 function randomUnique(count,max){
   let arr=[];
   while(arr.length<count){
@@ -173,112 +194,97 @@ function randomUnique(count,max){
   return arr;
 }
 
+/* lịch sử */
 function updateHistory(text){
   historyData.unshift(text);
   if(historyData.length>30) historyData.pop();
 
-  document.getElementById("historyArea").innerHTML =
+  document.getElementById("historyArea").innerHTML=
   historyData.map(i=>`<div class="historyItem">${i}</div>`).join("");
 }
 
-/* SLOT animation */
-function slotSpin(el, final, max, delay){
-  let count = 0;
-
-  let t = setInterval(()=>{
-    el.innerText = Math.floor(Math.random()*max)
-      .toString().padStart(3,"0");
-
-    tickSound();
-    count++;
-
-    if(count > 20){
-      clearInterval(t);
-      el.innerText = final;
-    }
-
-  }, delay);
-}
-
+/* MAIN */
 function quaySo(){
-  if(isRunning) return;
-  isRunning = true;
 
-  let mode = document.getElementById("gameMode").value;
-  let result = document.getElementById("result");
-  result.innerHTML = "";
+  if(isRunning) return;
+  isRunning=true;
+
+  let mode=document.getElementById("gameMode").value;
+  let result=document.getElementById("result");
+  result.innerHTML="";
 
   /* ================= MEGA ================= */
-  if(mode === "mega"){
+  if(mode==="mega"){
 
-    let nums = randomUnique(6,45);
+    let nums=randomUnique(6,45);
 
-    result.innerHTML = `<div class="sectionTitle">🎰 Mega 6/45</div>`;
+    result.innerHTML=`<div class="sectionTitle">🎰 Mega 6/45</div>`;
 
     nums.forEach(n=>{
       let d=document.createElement("div");
       d.className="ball";
-      d.innerText="0";
+      d.innerText="00";
       result.appendChild(d);
 
-      setTimeout(()=>slotSpin(d,n,45,140), Math.random()*400);
+      setTimeout(()=>slotSpin(d,n,45,130,2),Math.random()*300);
     });
 
     setTimeout(()=>{
       updateHistory("Mega: "+nums.join("-"));
       isRunning=false;
-    },2500);
+    },2200);
   }
 
   /* ================= POWER ================= */
-  else if(mode === "power"){
+  else if(mode==="power"){
 
-    let nums = randomUnique(6,55);
+    let nums=randomUnique(6,55);
 
-    result.innerHTML = `<div class="sectionTitle">⚡ Power 6/55</div>`;
+    result.innerHTML=`<div class="sectionTitle">⚡ Power 6/55</div>`;
 
     nums.forEach(n=>{
       let d=document.createElement("div");
       d.className="ball";
-      d.innerText="0";
+      d.innerText="00";
       result.appendChild(d);
 
-      setTimeout(()=>slotSpin(d,n,55,140), Math.random()*500);
+      setTimeout(()=>slotSpin(d,n,55,130,2),Math.random()*350);
     });
 
     setTimeout(()=>{
       updateHistory("Power: "+nums.join("-"));
       isRunning=false;
-    },2600);
+    },2300);
   }
 
-  /* ================= 3D SLOT (REAL FEEL) ================= */
+  /* ================= 3D SLOT ================= */
   else{
 
-    let aFinal = Math.floor(Math.random()*1000).toString().padStart(3,"0");
-    let bFinal = Math.floor(Math.random()*1000).toString().padStart(3,"0");
+    let a=Math.floor(Math.random()*1000);
+    let b=Math.floor(Math.random()*1000);
 
-    result.innerHTML = `
+    let aFinal=a.toString().padStart(3,"0");
+    let bFinal=b.toString().padStart(3,"0");
+
+    result.innerHTML=`
       <div class="sectionTitle">🎯 3D SLOT MACHINE</div>
-
       <div class="number3d" id="a">000</div>
       <div class="number3d" id="b">000</div>
     `;
 
-    let a = document.getElementById("a");
-    let b = document.getElementById("b");
+    let boxA=document.getElementById("a");
+    let boxB=document.getElementById("b");
 
-    /* từng cột chạy chậm kiểu slot thật */
-    slotSpin(a, aFinal, 1000, 160);
+    slotSpin(boxA,aFinal,1000,150,3);
 
     setTimeout(()=>{
-      slotSpin(b, bFinal, 1000, 180);
-    }, 600);
+      slotSpin(boxB,bFinal,1000,160,3);
+    },600);
 
     setTimeout(()=>{
       updateHistory("3D: "+aFinal+" | "+bFinal);
       isRunning=false;
-    }, 3000);
+    },2600);
   }
 }
 
