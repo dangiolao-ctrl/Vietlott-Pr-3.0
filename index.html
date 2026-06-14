@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vietlott Full Pro</title>
+<title>Vietlott Full Pro 3.2</title>
 
 <style>
 body{
@@ -50,6 +49,7 @@ border:none;
 background:#d32f2f;
 color:#ffeb3b;
 font-weight:bold;
+cursor:pointer;
 }
 
 .ball{
@@ -65,31 +65,19 @@ font-weight:bold;
 background:radial-gradient(circle,#fff176,#fbc02d);
 }
 
-.ball.hot{
-background:radial-gradient(circle,#ffeb3b,#ff9800);
-transform:scale(1.1);
-}
-
 .section{
 font-weight:bold;
 margin:10px 0;
 color:#c62828;
-}
-
-.score{
-font-size:18px;
-font-weight:bold;
-color:#2e7d32;
-margin-top:10px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">🎰 VIETLOTT FULL PRO + 🔮 TỬ VI</div>
+<div class="header">🎰 VIETLOTT FULL PRO 3.2</div>
 
-<!-- ================= TỬ VI ================= -->
+<!-- TỬ VI -->
 <div class="card">
 
 <div class="section">🔮 Tử vi</div>
@@ -106,18 +94,10 @@ margin-top:10px;
 <input id="year" type="number" placeholder="Năm">
 
 <select id="hour">
-<option value="ty">Tý</option>
-<option value="suu">Sửu</option>
-<option value="dan">Dần</option>
-<option value="mao">Mão</option>
-<option value="thin">Thìn</option>
-<option value="ty2">Tỵ</option>
-<option value="ngo">Ngọ</option>
-<option value="mui">Mùi</option>
-<option value="than">Thân</option>
-<option value="dau">Dậu</option>
-<option value="tuat">Tuất</option>
-<option value="hoi">Hợi</option>
+<option>Tý</option><option>Sửu</option><option>Dần</option>
+<option>Mão</option><option>Thìn</option><option>Tỵ</option>
+<option>Ngọ</option><option>Mùi</option><option>Thân</option>
+<option>Dậu</option><option>Tuất</option><option>Hợi</option>
 </select>
 
 <button onclick="calcTuVi()">TÍNH TỬ VI</button>
@@ -126,7 +106,7 @@ margin-top:10px;
 
 </div>
 
-<!-- ================= VIETLOTT ================= -->
+<!-- VIETLOTT -->
 <div class="card">
 
 <div class="section">🎰 Vietlott</div>
@@ -147,7 +127,7 @@ margin-top:10px;
 
 </div>
 
-<!-- ================= RESULT ================= -->
+<!-- RESULT -->
 <div class="card">
 
 <div class="section">🎯 Kết quả</div>
@@ -163,9 +143,9 @@ let lucky=[];
 /* ================= TỬ VI ================= */
 function calcTuVi(){
 
-let d=Number(day.value);
-let m=Number(month.value);
-let y=Number(year.value);
+let d=+day.value;
+let m=+month.value;
+let y=+year.value;
 
 if(!d||!m||!y){
 alert("Nhập đủ ngày tháng năm");
@@ -174,105 +154,94 @@ return;
 
 let age=new Date().getFullYear()-y;
 
-let a=(d+age)%10;
-let b=(m+age)%10;
-let c=(d+m+age)%10;
+lucky=[
+(d+age)%45+1,
+(m+age)%45+1,
+(d+m+age)%45+1
+];
 
-lucky=[a,b,c];
-
-tuviBox.innerHTML=
-"⭐ Số may mắn: <b>"+lucky.join(" - ")+"</b>";
+tuviBox.innerHTML="⭐ Số may mắn: <b>"+lucky.join(" - ")+"</b>";
 }
 
-/* ================= RANDOM ================= */
-function rand(max){
-return Math.floor(Math.random()*max)+1;
+/* ================= RANDOM KHÔNG TRÙNG ================= */
+function genUnique(max,count,source){
+
+let arr=[];
+
+while(arr.length<count){
+let n;
+
+if(source.length && Math.random()<0.6){
+n=source[Math.floor(Math.random()*source.length)];
+} else {
+n=Math.floor(Math.random()*max)+1;
 }
 
-/* ================= PICK ================= */
-function pick(max,force){
-
-if(lucky.length && Math.random()<force){
-let p=lucky[Math.floor(Math.random()*lucky.length)];
-return Math.min(max,Math.max(1,p+rand(3)));
+if(!arr.includes(n)){
+arr.push(n);
+}
 }
 
-return rand(max);
+return arr.sort((a,b)=>a-b);
 }
 
 /* ================= SPIN ================= */
-function spin(el,max,final,pad){
+function spin(el,max,final){
 
 let t=setInterval(()=>{
-el.innerText = rand(max).toString().padStart(pad,"0");
+el.innerText=Math.floor(Math.random()*max)+1;
 },80);
 
 setTimeout(()=>{
 clearInterval(t);
-el.innerText = final.toString().padStart(pad,"0");
+el.innerText=final;
 },1200);
-}
-
-/* ================= GENERATE ================= */
-function gen(game,mode){
-
-let nums=[];
-let max = game==="645"?45 : game==="655"?55 : 999;
-let count = game==="3d"?2:6;
-
-for(let i=0;i<count;i++){
-
-if(mode==="random"){
-nums.push(rand(max));
-}
-
-else if(mode==="tuvi"){
-nums.push(pick(max,0.6));
-}
-
-else{
-nums.push(pick(max,0.9));
-}
-
-}
-
-return nums;
 }
 
 /* ================= QUAY ================= */
 function quay(){
 
-let game=document.getElementById("game").value;
-let mode=document.getElementById("mode").value;
+let game=gameSelect.value;
+let mode=modeSelect.value;
 
-let nums=gen(game,mode);
+let max = game==="645"?45 : game==="655"?55 : 999;
+let count = game==="3d"?2:6;
 
-let box=document.getElementById("result");
-let sc=document.getElementById("score");
+let nums;
 
-box.innerHTML="";
+if(mode==="random"){
+nums=genUnique(max,count,[]);
+}
+else if(mode==="tuvi"){
+nums=genUnique(max,count,lucky);
+}
+else{
+nums=genUnique(max,count,lucky);
+}
+
+result.innerHTML="";
+score.innerHTML="⏳ Đang quay...";
 
 nums.forEach((n,i)=>{
 
 let d=document.createElement("div");
 d.className="ball";
+result.appendChild(d);
 
-box.appendChild(d);
-
-/* spin delay */
 setTimeout(()=>{
-spin(d,(game==="645")?45:(game==="655")?55:999,n,(game==="3d")?3:2);
+spin(d,max,n);
 },i*200);
 
 });
 
-sc.innerHTML="⏳ Đang quay...";
-
 setTimeout(()=>{
-sc.innerHTML="✔ Hoàn tất!";
+score.innerHTML="✔ Hoàn tất!";
 },2000);
 
 }
+
+let gameSelect=document.getElementById("game");
+let modeSelect=document.getElementById("mode");
 
 </script>
 
