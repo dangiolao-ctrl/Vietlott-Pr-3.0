@@ -3,14 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vietlott Pro 5.0</title>
+<title>Vietlott Pro 6.0</title>
 
 <style>
+
+*{
+box-sizing:border-box;
+}
+
 body{
 margin:0;
 padding:15px;
-font-family:Arial;
-background:linear-gradient(135deg,#fff3cd,#ffe0b2);
+font-family:Arial,sans-serif;
+background:linear-gradient(135deg,#fff3cd,#ffe082);
 text-align:center;
 }
 
@@ -18,21 +23,21 @@ text-align:center;
 background:#b71c1c;
 color:#ffeb3b;
 padding:15px;
+border-radius:15px;
 font-size:24px;
 font-weight:bold;
-border-radius:15px;
 margin-bottom:15px;
 }
 
 .card{
 background:#fff;
 padding:15px;
-border-radius:15px;
 margin-bottom:15px;
+border-radius:15px;
 box-shadow:0 3px 10px rgba(0,0,0,.15);
 }
 
-select,button{
+input,select,button{
 width:100%;
 padding:12px;
 margin-top:8px;
@@ -42,15 +47,15 @@ font-size:15px;
 
 button{
 border:none;
-background:#d32f2f;
+background:#c62828;
 color:#ffeb3b;
 font-weight:bold;
 cursor:pointer;
 }
 
 .ball{
-width:55px;
-height:55px;
+width:60px;
+height:60px;
 display:inline-flex;
 justify-content:center;
 align-items:center;
@@ -59,217 +64,467 @@ margin:5px;
 font-size:20px;
 font-weight:bold;
 background:radial-gradient(circle,#fff176,#fbc02d);
+animation:spin .8s;
+}
+
+@keyframes spin{
+from{
+transform:rotate(0deg) scale(.2);
+}
+to{
+transform:rotate(360deg) scale(1);
+}
+}
+
+.clock{
+font-size:18px;
+font-weight:bold;
+color:#c62828;
+}
+
+.hot{
+background:radial-gradient(circle,#ffeb3b,#ff9800);
 }
 
 .section{
 font-weight:bold;
-margin:10px 0;
+margin-bottom:10px;
 color:#b71c1c;
 }
 
 .small{
 font-size:13px;
-opacity:0.8;
+opacity:.8;
 }
+
 </style>
 </head>
 
 <body>
 
-<div class="header">🎰 VIETLOTT PRO 5.0</div>
+<div class="header">
+🎰 VIETLOTT PRO 6.0
+</div>
+
+<div class="card">
+<div class="clock" id="clock"></div>
+</div>
 
 <div class="card">
 
-<div class="section">🎮 Chọn game</div>
+<div class="section">
+🔮 PHONG THỦY
+</div>
+
+<input id="name" placeholder="Họ tên">
+
+<select id="gender">
+<option>Nam</option>
+<option>Nữ</option>
+</select>
+
+<input id="year" type="number" placeholder="Năm sinh">
+
+<select id="hour">
+<option>Tý</option>
+<option>Sửu</option>
+<option>Dần</option>
+<option>Mão</option>
+<option>Thìn</option>
+<option>Tỵ</option>
+<option>Ngọ</option>
+<option>Mùi</option>
+<option>Thân</option>
+<option>Dậu</option>
+<option>Tuất</option>
+<option>Hợi</option>
+</select>
+
+<button onclick="calcTuVi()">
+TÍNH PHONG THỦY
+</button>
+
+<div id="tuvi"></div>
+
+</div>
+
+<div class="card">
+
+<div class="section">
+🎮 CHỌN VÉ
+</div>
 
 <select id="game">
 <option value="645">Mega 6/45</option>
 <option value="655">Power 6/55</option>
-<option value="3d">3D MPR</option>
+<option value="3d">Max 3D</option>
+<option value="3dp">Max 3D Pro</option>
 </select>
 
 <select id="mode">
 <option value="random">🎲 Ngẫu nhiên</option>
-<option value="tuvi">🔮 Tử vi</option>
+<option value="feng">🔮 Phong thủy</option>
+<option value="luck">🍀 May mắn</option>
 </select>
 
-<button onclick="quay()">QUAY NGAY</button>
-<button onclick="toggleSound()" id="soundBtn">🔊 Âm thanh: BẬT</button>
+<button onclick="quay()">
+QUAY NGAY
+</button>
 
 </div>
 
 <div class="card">
 
-<div class="section" id="label">🎯 Kết quả</div>
+<div class="section" id="title">
+🎯 KẾT QUẢ
+</div>
+
 <div id="result"></div>
-<div id="status"></div>
+
+<div id="extra"></div>
 
 </div>
 
 <div class="card">
 
-<div class="section">📊 Thống kê</div>
+<div class="section">
+🔥 HOT NUMBERS
+</div>
+
 <div id="stats"></div>
 
 </div>
 
 <div class="card">
 
-<div class="section">📜 Lịch sử</div>
+<div class="section">
+📜 LỊCH SỬ
+</div>
 
-<div class="small">Mega 6/45</div>
-<div id="h645"></div>
-
-<div class="small">Power 6/55</div>
-<div id="h655"></div>
-
-<div class="small">3D MPR</div>
-<div id="h3d"></div>
+<div id="history"></div>
 
 </div>
 
 <script>
 
-let history = JSON.parse(localStorage.getItem("vietlott_v5") || "{}");
-let soundOn = true;
-let allNumbers = [];
+let lucky=[3,6,8];
 
-function save(){
-localStorage.setItem("vietlott_v5", JSON.stringify(history));
+let db=JSON.parse(
+localStorage.getItem("vietlott6")
+||
+'{"history":[],"freq":{}}'
+);
+
+function updateClock(){
+
+let now=new Date();
+
+document.getElementById("clock").innerHTML=
+now.toLocaleString("vi-VN");
+
 }
 
-/* ================= SOUND ================= */
-function beep(){
-if(!soundOn) return;
-let audio = new Audio("click.mp3");
-audio.play();
-}
+setInterval(updateClock,1000);
+updateClock();
 
-function toggleSound(){
-soundOn = !soundOn;
-document.getElementById("soundBtn").innerText =
-soundOn ? "🔊 Âm thanh: BẬT" : "🔇 Âm thanh: TẮT";
-}
-
-/* ================= RANDOM ================= */
 function rand(max){
 return Math.floor(Math.random()*max)+1;
 }
 
 function unique(max,count){
+
 let arr=[];
+
 while(arr.length<count){
+
 let n=rand(max);
-if(!arr.includes(n)) arr.push(n);
-}
-return arr.sort((a,b)=>a-b);
-}
-
-/* ================= GENERATE ================= */
-function gen(game,mode){
-
-let max = game==="645"?45 : game==="655"?55 : 999;
-let count = game==="3d"?2:6;
-
-let source = mode==="tuvi" ? [3,6,9,18,27,36] : [];
-
-let arr=[];
-
-while(arr.length<count){
-let n = source.length && Math.random()<0.5
-? source[Math.floor(Math.random()*source.length)]
-: rand(max);
 
 if(!arr.includes(n)){
 arr.push(n);
-allNumbers.push(n);
 }
+
 }
 
 return arr.sort((a,b)=>a-b);
+
 }
 
-/* ================= QUAY ================= */
-function quay(){
+function saveDB(){
 
-beep();
+localStorage.setItem(
+"vietlott6",
+JSON.stringify(db)
+);
 
-let game = gameSelect.value;
-let mode = modeSelect.value;
+}
 
-let label =
-game==="645" ? "Mega 6/45" :
-game==="655" ? "Power 6/55" :
-"3D MPR";
+function calcTuVi(){
 
-document.getElementById("label").innerHTML = "🎯 " + label;
+let year=
+parseInt(
+document.getElementById("year").value
+|| 2000
+);
 
-let nums = gen(game,mode);
+let menhList=[
+"Kim",
+"Thủy",
+"Hỏa",
+"Thổ",
+"Mộc"
+];
 
-let box = document.getElementById("result");
-box.innerHTML = "";
+let menh=
+menhList[year%5];
+
+lucky=[
+(year%9)+1,
+((year+3)%9)+1,
+((year+6)%9)+1
+];
+
+document.getElementById("tuvi").innerHTML=
+"Ngũ hành: <b>"+menh+"</b><br>"+
+"Số hợp mệnh: <b>"+
+lucky.join(" - ")
++"</b>";
+
+}
+  function updateStats(nums){
+
+nums.forEach(n=>{
+
+db.freq[n]=(db.freq[n]||0)+1;
+
+});
+
+let top=
+Object.entries(db.freq)
+.sort((a,b)=>b[1]-a[1])
+.slice(0,10);
+
+document.getElementById("stats").innerHTML=
+top.map(x=>
+x[0]+" ("+x[1]+")"
+).join("<br>");
+
+}
+
+function renderHistory(){
+
+document.getElementById("history").innerHTML=
+db.history.join("<hr>");
+
+}
+
+function showBalls(nums,pad){
+
+let box=
+document.getElementById("result");
+
+box.innerHTML="";
 
 nums.forEach((n,i)=>{
 
-let d = document.createElement("div");
+setTimeout(()=>{
+
+let d=
+document.createElement("div");
+
 d.className="ball";
+
+if(
+lucky.includes(
+n%10
+)
+){
+d.classList.add("hot");
+}
+
+d.innerText=
+String(n).padStart(
+pad,
+"0"
+);
+
 box.appendChild(d);
 
-setTimeout(()=>{
-d.innerText = n;
-beep();
-}, i*200);
+},i*200);
 
 });
 
-/* history */
-if(!history[game]) history[game]=[];
+}
 
-history[game].unshift(nums.join(" - "));
-if(history[game].length>10) history[game].pop();
+function quay(){
 
-save();
+let game=
+document.getElementById("game").value;
+
+let mode=
+document.getElementById("mode").value;
+
+let nums=[];
+
+let extra="";
+
+if(game==="645"){
+
+nums=
+unique(
+45,
+6
+);
+
+document.getElementById("title").innerHTML=
+"🎰 Mega 6/45";
+
+showBalls(
+nums,
+2
+);
+
+}
+
+else if(game==="655"){
+
+nums=
+unique(
+55,
+6
+);
+
+let power=
+rand(
+55
+);
+
+document.getElementById("title").innerHTML=
+"⚡ Power 6/55";
+
+showBalls(
+nums,
+2
+);
+
+extra=
+"<br><br><b>⭐ Power Number: "
++
+String(power).padStart(2,"0")
++
+"</b>";
+
+}
+
+else if(game==="3d"){
+
+nums=[
+rand(999)
+];
+
+document.getElementById("title").innerHTML=
+"🎯 Max 3D";
+
+showBalls(
+nums,
+3
+);
+
+}
+
+else{
+
+nums=[
+rand(999),
+rand(999)
+];
+
+document.getElementById("title").innerHTML=
+"🎯 Max 3D Pro";
+
+showBalls(
+nums,
+3
+);
+
+}
+
+if(mode==="feng"){
+
+nums=
+nums.map(n=>
+
+Math.max(
+1,
+lucky[
+rand(
+lucky.length
+)-1
+]
+*
+rand(6)
+
+)
+
+);
+
+}
+
+if(mode==="luck"){
+
+nums=
+nums.map(n=>
+
+n+
+rand(9)
+
+);
+
+}
+
+document.getElementById("extra").innerHTML=
+extra;
+
+db.history.unshift(
+
+new Date()
+.toLocaleString("vi-VN")
+
++
+
+" | "
+
++
+
+document.getElementById("title")
+.innerText
+
++
+
+" | "
+
++
+
+nums.join(" - ")
+
+);
+
+if(
+db.history.length>100
+){
+db.history.pop();
+}
+
+updateStats(nums);
+
 renderHistory();
-renderStats();
 
-document.getElementById("status").innerHTML="✔ Hoàn tất!";
+saveDB();
+
 }
 
-/* ================= STATS ================= */
-function renderStats(){
-
-let count={};
-
-allNumbers.forEach(n=>{
-count[n]=(count[n]||0)+1;
-});
-
-let sorted = Object.entries(count)
-.sort((a,b)=>b[1]-a[1])
-.slice(0,5);
-
-document.getElementById("stats").innerHTML =
-"🔥 Hot numbers:<br>" +
-sorted.map(x=>x[0]+" ("+x[1]+")").join("<br>");
-}
-
-/* ================= HISTORY ================= */
-function renderHistory(){
-
-document.getElementById("h645").innerHTML =
-(history["645"]||[]).join("<br>");
-
-document.getElementById("h655").innerHTML =
-(history["655"]||[]).join("<br>");
-
-document.getElementById("h3d").innerHTML =
-(history["3d"]||[]).join("<br>");
-}
+updateStats([]);
 
 renderHistory();
-
-let gameSelect=document.getElementById("game");
-let modeSelect=document.getElementById("mode");
 
 </script>
 
